@@ -1,0 +1,16 @@
+# Dependencias
+package/
+
+# Variables de entorno
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Build
+lambda.zip
+
+# VS Code
+.vscode/

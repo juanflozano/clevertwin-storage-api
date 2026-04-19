@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleverTwin Storage Monitor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+
+    <h1>CleverTwin Storage Monitor</h1>
+
+    <!-- LOGIN -->
+    <div id="login-section" class="login-box">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p id="login-error" class="error"></p>
+
+        <!-- REGISTER FORM -->
+        <div id="register-form" style="margin-top: 24px;">
+            <h2>Register your company</h2>
+            <input type="text" id="reg-company" placeholder="Company name">
+            <input type="email" id="reg-email" placeholder="Email">
+            <input type="password" id="reg-password" placeholder="Password">
+            <button onclick="registerCompany()" style="background: #1a1d27; border: 1px solid #00d4ff; color: #00d4ff;">Register</button>
+            <p id="register-message" class="error"></p>
+        </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div id="events-section" style="display:none">
+        <div class="header-bar">
+            <div>
+                <h1>Storage Events</h1>
+                <h2>Logged in as: <span id="company-name"></span></h2>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Company</th>
+                    <th>Event Type</th>
+                    <th>File Size (MB)</th>
+                    <th>File Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="events-body"></tbody>
+        </table>
+        
+        <!-- NEW EVENT FORM -->
+        <div class="login-box" style="margin-top: 32px; margin-left: 0;">
+            <h2>Register New Event</h2>
+            <select id="new-event-type">
+                <option value="upload">Upload</option>
+                <option value="download">Download</option>
+                <option value="delete">Delete</option>
+            </select>
+            <input type="number" id="new-file-size" placeholder="File Size (MB)">
+            <select id="new-file-type">
+                <option value="pointcloud">Point Cloud</option>
+                <option value="360image">360 Image</option>
+                <option value="orthophoto">Orthophoto</option>
+            </select>
+            <button onclick="registerEvent()" style="margin-top: 16px;">Register Event</button>
+            <p id="create-error" class="error"></p>
+        </div>
+
+    </div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
