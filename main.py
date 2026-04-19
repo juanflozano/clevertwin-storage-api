@@ -5,6 +5,8 @@ from models import Base
 from routers import events, auth
 from mangum import Mangum
 
+# Clevertwin Storage API - v1.0
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
