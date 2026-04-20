@@ -69,3 +69,15 @@ def update_event(id: int, event: Event, db: Session = Depends(get_db), current_c
     db.commit()
     db.refresh(event_found)
     return {"message": f"Event with '{id}' id was successfully updated to {event_found}"}
+
+@router.get("/stats")
+def get_stats(db: Session = Depends(get_db), current_company: str = Depends(get_current_company)):
+    events = db.query(StorageEvent).filter(StorageEvent.company == current_company).all()
+    stats = {
+        "company": current_company,
+        "total_uploads_mb": sum(e.file_size for e in events if e.event_type == "upload"),
+        "total_downloads_mb": sum(e.file_size for e in events if e.event_type == "download"),
+        "total_deletes_mb": sum(e.file_size for e in events if e.event_type == "delete"),
+        "total_events": len(events)
+    }
+    return stats
