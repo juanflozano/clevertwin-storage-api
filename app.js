@@ -24,6 +24,14 @@ async function login() {
     }
 }
 
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none')
+    
+    document.getElementById(`tab-${tab}`).style.display = 'block'
+    event.target.classList.add('active')
+}
+
 async function loadEvents() {
     const response = await fetch(`${API_URL}/events`, {
         headers: { "Authorization": `Bearer ${token}` }
