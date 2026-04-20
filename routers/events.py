@@ -5,6 +5,9 @@ from database import SessionLocal
 from models import StorageEvent
 from schemas import Event
 from auth import verify_token
+from datetime import datetime
+import boto3
+import json
 
 router = APIRouter()
 security = HTTPBearer()
@@ -22,6 +25,29 @@ def get_current_company(credentials: HTTPAuthorizationCredentials = Depends(secu
     if company is None:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return company
+
+def save_log_to_s3(event_type: str, company: str, event_data: dict):
+    try:
+        s3 = boto3.client("s3", region_name="us-east-1")
+        
+        log = {
+            "event_type": event_type,
+            "company": company,
+            "timestamp": datetime.utcnow().isoformat(),
+            "data": event_data
+        }
+        
+        key = f"logs/{company}/{event_type}/{datetime.utcnow().strftime('%Y/%m/%d')}/{datetime.utcnow().isoformat()}.json"
+        
+        s3.put_object(
+            Bucket="clevertwin-storage-logs",
+            Key=key,
+            Body=json.dumps(log),
+            ContentType="application/json"
+        )
+        print(f"[LOG] Saved to S3: {key}")
+    except Exception as e:
+        print(f"[LOG] Error saving log: {e}")
 
 @router.get("/events")
 def get_events(db: Session = Depends(get_db), current_company: str = Depends(get_current_company)):
@@ -46,15 +72,32 @@ def create_event(event: Event, db: Session = Depends(get_db), current_company: s
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
-    return db_event
 
+    save_log_to_s3("upload", current_company, {
+        "id": db_event.id,
+        "company": db_event.company,
+        "event_type": db_event.event_type,
+        "file_size": db_event.file_size,
+        "file_type": db_event.file_type
+    })
+
+    return db_event
+   
 @router.delete("/events/{id}")
 def delete_event(id: int, db: Session = Depends(get_db), current_company: str = Depends(get_current_company)):
     event = db.query(StorageEvent).filter(StorageEvent.id == id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Id not found in events")
+    event_data = {
+        "id": event.id,
+        "company": event.company,
+        "event_type": event.event_type,
+        "file_size": event.file_size,
+        "file_type": event.file_type
+    }
     db.delete(event)
     db.commit()
+    save_log_to_s3("delete", current_company, event_data)
     return {"message": f"Event with id: '{id}' deleted successfully"}
 
 @router.put("/events/{id}")
