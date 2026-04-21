@@ -22,10 +22,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt --target ./package --platform manylinux2014_x86_64 --implementation cp --python-version 3.12 --only-binary=:all:
+          pip install -r backend/requirements.txt --target ./package --platform manylinux2014_x86_64 --implementation cp --python-version 3.12 --only-binary=:all:
 
       - name: Build zip
-        run: python build.py
+        run: python scripts/build.py
 
       - name: Deploy to Lambda
         uses: appleboy/lambda-action@master
@@ -42,7 +42,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy frontend to S3
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -51,7 +51,7 @@ jobs:
 
       - name: Upload to S3
         run: |
-          aws s3 sync . s3://clevertwin-storage-frontend --exclude "*" --include "index.html" --include "styles.css" --include "app.js"
+          aws s3 sync frontend/ s3://clevertwin-storage-frontend --delete
 
       - name: Invalidate CloudFront
         run: |
