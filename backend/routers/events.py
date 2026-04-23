@@ -1,30 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from database import SessionLocal
+from fastapi.security import HTTPBearer
 from models import StorageEvent
 from schemas import Event
-from auth import verify_token
 from datetime import datetime
+from dependencies import get_db, get_current_company
 import boto3
 import json
 
 router = APIRouter()
 security = HTTPBearer()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-def get_current_company(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-    company = verify_token(token)
-    if company is None:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    return company
 
 def save_log_to_s3(event_type: str, company: str, event_data: dict):
     try:
