@@ -1,18 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from database import SessionLocal
 from models import User
 from schemas import UserRegister, UserLogin
 from auth import hash_password, verify_password, create_access_token
+from dependencies import get_db
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/auth/register")
 def register(user: UserRegister, db: Session = Depends(get_db)):
